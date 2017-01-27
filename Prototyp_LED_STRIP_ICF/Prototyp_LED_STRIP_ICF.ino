@@ -2,7 +2,7 @@
 #include <simtronyx_RGB_LED.h>    // http://blog.simtronyx.de/eine-rgb-led-bibliothek-fuer-den-arduino/
 #include "FastLED.h"              // http://fastled.io/
 #include <Thread.h>               // https://github.com/ivanseidel/ArduinoThread
-#include <ThreadController.h>     
+#include <ThreadController.h>
 
 // This Software is just a prototyp
 // Goal of this programm is to create a animation
@@ -10,8 +10,8 @@
 //
 // author: Benjamin Koderisch
 //  -b.koderisch@gmail.com-
-// version: 1.1
-// last update: 25.01.2017
+// version: 1.2
+// last update: 27.01.2017
 //
 // have fun!
 
@@ -25,15 +25,15 @@
 #define DATA_PIN    3
 //#define CLK_PIN     4       // for the final led strip
 #define NUM_LEDS    60
-#define LED_TYPE    WS2812B
+#define LED_TYPE    WS2812B   // WS2801 for the ICF LED Strip
 #define COLOR_ORDER GRB
-#define FPS         120 // frames per second
+#define FPS         120       // frames per second
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
 
 // Inputs //
-#define BTN_PIN     2
-#define FRIDGE      12
+#define BTN_PIN     2       // input pin of the pushbutton
+#define FRIDGE      12      // pin for the door sensor for the fridge
 
 
 // RGB LED //
@@ -57,8 +57,6 @@
 
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Initiations\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,21 +66,17 @@
 CRGBArray<NUM_LEDS> leds;   // initiate the led Strip (leds)
 
 
-
 // inputs //
 boolean doSwitch = false;   // true, when button was pressed - turn false when switch is over
 int fridgeState = 0;        // 1 when fridge is closed - 0 when fridge is open
-
 
 
 // RGB LED //
 simtronyx_RGB_LED rgbLed(RED_PIN, GREEN_PIN, BLUE_PIN);
 
 
-
 // 7 segment display //
 sevenSegmentDisplay display(COMMON_CATHODE, A, B, C, D, E, F, G, DP);
-
 
 
 // patterns //
@@ -92,13 +86,10 @@ typedef void (*SimplePatternList[])();    // List of patterns to cycle through. 
 
 
 
-
 // threads //
 ThreadController controll = ThreadController();  // Thread Controller that will controll all threads
 Thread* ledStrip = new Thread();                 // Thread to controll the LED Strip
 Thread* btnControll = new Thread();              // Thread to controll the button Inputs
-
-
 
 
 
@@ -141,9 +132,14 @@ void loop() {
 }
 
 
-SimplePatternList gPatterns = {animation0, animation1, animation2, animation3, 
-                              animation4, animation5, animation6, animation7, 
+// // // // // // // // // fill pattern list // // // // // // // // // // // //
+
+SimplePatternList gPatterns = {animation0, animation1, animation2, animation3,
+                              animation4, animation5, animation6, animation7,
                               animation8, animation9};
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // //
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
