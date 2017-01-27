@@ -5,13 +5,13 @@ class Animations{
 public:
 
     // rainbow
-    void animation0{
+    void animation0(){
       fill_rainbow( leds, NUM_LEDS, gHue, 3);
     }
 
 
     // confetti
-    void animation1{
+    void animation1(){
       // random colored speckles that blink in and fade smoothly
       fadeToBlackBy( leds, NUM_LEDS, 10);
       int pos = random16(NUM_LEDS);
@@ -20,7 +20,7 @@ public:
 
 
     // sinelon
-    void animation2{
+    void animation2(){
       // a colored dot sweeping back and forth, with fading trails
       fadeToBlackBy( leds, NUM_LEDS, 20);
       int pos = beatsin16(13,0,NUM_LEDS);
@@ -29,7 +29,7 @@ public:
 
 
     // rainbowWithGlitter
-    void animation3{
+    void animation3(){
       // built-in FastLED rainbow, plus some random sparkly glitter
       rainbow();
       addGlitter(80);
@@ -37,7 +37,7 @@ public:
 
 
     // bpm
-    void animation4{
+    void animation4(){
       // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
       uint8_t BeatsPerMinute = 62;
       CRGBPalette16 palette = PartyColors_p;
@@ -49,7 +49,7 @@ public:
 
 
     // juggle
-    void animation5{
+    void animation5(){
       // eight colored dots, weaving in and out of sync with each other
       fadeToBlackBy( leds, NUM_LEDS, 20);
       byte dothue = 0;
@@ -59,23 +59,23 @@ public:
       }
     }
 
-    void animation6{
+    void animation6(){
 
     }
 
-    void animation7{
+    void animation7(){
 
     }
 
-    void animation8{
+    void animation8(){
 
     }
 
-    void animation9{
+    void animation9(){
 
     }
 
-    void animationFridge{
+    void animationFridge(){
       for(int i = 0; i < NUM_LEDS/2; i++) {
         // fade everything out
         fadeToBlackBy(leds, NUM_LEDS, 30);
