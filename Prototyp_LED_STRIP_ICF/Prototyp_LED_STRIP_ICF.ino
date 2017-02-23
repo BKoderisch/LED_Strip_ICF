@@ -22,10 +22,12 @@
 
 
 // LED Strip //
-#define DATA_PIN    3
-//#define CLK_PIN     4       // for the final led strip
+#define DATA_PIN1    3
+#define CLK_PIN1    4       // for the final led strip
+#define DATA_PIN2    10
+#define CLK_PIN3    11
 #define NUM_LEDS    60
-#define LED_TYPE    WS2812B   // WS2801 for the ICF LED Strip
+#define LED_TYPE    WS2801   // WS2801 for the ICF LED Strip
 #define COLOR_ORDER GRB
 #define FPS         120       // frames per second
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
@@ -37,11 +39,11 @@
 
 
 // RGB LED //
-#define RED_PIN     11
-#define GREEN_PIN   6
-#define BLUE_PIN    10
-#define LED_S       100     // LED saturation
-#define LED_V       45      // LED value
+//#define RED_PIN     11
+//#define GREEN_PIN   6
+//#define BLUE_PIN    10
+//#define LED_S       100     // LED saturation
+//#define LED_V       45      // LED value
 
 
 // 7 segment display //
@@ -72,7 +74,7 @@ int fridgeState = 0;        // 1 when fridge is closed - 0 when fridge is open
 
 
 // RGB LED //
-simtronyx_RGB_LED rgbLed(RED_PIN, GREEN_PIN, BLUE_PIN);
+//simtronyx_RGB_LED rgbLed(RED_PIN, GREEN_PIN, BLUE_PIN);
 
 
 // 7 segment display //
@@ -108,7 +110,7 @@ void setup() {
 
 
   // LED Strip //
-  FastLED.addLeds<LED_TYPE, DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATA_PIN1, CLK_PIN1, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
 
   // Threads //
@@ -186,7 +188,7 @@ void lightCallback(){
 // // // // // // // // // // // // // // // // // // // // // //
 
 void buttonCallback(){
-  rgbLed.setHSV(gHue, LED_S, LED_V);
+// rgbLed.setHSV(gHue, LED_S, LED_V);
   display.set(gCurrentPatternNumber);
   int buttonState = 0;
   if(doSwitch == false){
@@ -250,7 +252,7 @@ void animation5(){
   fadeToBlackBy( leds, NUM_LEDS, 20);
   byte dothue = 0;
   for( int i = 0; i < 8; i++) {
-    leds[beatsin16(i+7,0,NUM_LEDS)] |= CHSV(dothue, 200, 255);
+    leds[beatsin16(i+2,0,NUM_LEDS)] |= CHSV(dothue, 200, 255);
     dothue += 32;
   }
 }
