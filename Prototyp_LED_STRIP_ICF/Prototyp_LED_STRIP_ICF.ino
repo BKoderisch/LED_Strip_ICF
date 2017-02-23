@@ -3,6 +3,7 @@
 #include "FastLED.h"              // http://fastled.io/
 #include <Thread.h>               // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
+#include "Animations.h"
 
 // This Software is just a prototyp
 // Goal of this programm is to create a animation
@@ -38,14 +39,6 @@
 #define FRIDGE      12      // pin for the door sensor for the fridge
 
 
-// RGB LED //
-//#define RED_PIN     11
-//#define GREEN_PIN   6
-//#define BLUE_PIN    10
-//#define LED_S       100     // LED saturation
-//#define LED_V       45      // LED value
-
-
 // 7 segment display //
 #define A   0
 #define B   1
@@ -72,9 +65,6 @@ CRGBArray<NUM_LEDS> leds;   // initiate the led Strip (leds)
 boolean doSwitch = false;   // true, when button was pressed - turn false when switch is over
 int fridgeState = 0;        // 1 when fridge is closed - 0 when fridge is open
 
-
-// RGB LED //
-//simtronyx_RGB_LED rgbLed(RED_PIN, GREEN_PIN, BLUE_PIN);
 
 
 // 7 segment display //
@@ -188,7 +178,6 @@ void lightCallback(){
 // // // // // // // // // // // // // // // // // // // // // //
 
 void buttonCallback(){
-// rgbLed.setHSV(gHue, LED_S, LED_V);
   display.set(gCurrentPatternNumber);
   int buttonState = 0;
   if(doSwitch == false){
@@ -201,7 +190,7 @@ void buttonCallback(){
   }
 }
 
-
+/*
 // rainbow
 void animation0(){
   fill_rainbow( leds, NUM_LEDS, gHue, 3);
@@ -293,3 +282,4 @@ void addGlitter( fract8 chanceOfGlitter)
     leds[ random16(NUM_LEDS) ] += CRGB::White;
   }
 }
+*/
