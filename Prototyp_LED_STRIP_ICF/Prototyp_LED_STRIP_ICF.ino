@@ -11,8 +11,8 @@
 //
 // author: Benjamin Koderisch
 //  -b.koderisch@gmail.com-
-// version: 1.2
-// last update: 27.01.2017
+// version: 1.3
+// last update: 23.02.2017
 //
 // have fun!
 
@@ -23,30 +23,28 @@
 
 
 // LED Strip //
-#define DATA_PIN1    3
-#define CLK_PIN1    4       // for the final led strip
-#define DATA_PIN2    10
-#define CLK_PIN3    11
-#define NUM_LEDS    60
-#define LED_TYPE    WS2801   // WS2801 for the ICF LED Strip
+#define DATA_PIN   11
+#define CLK_PIN    12       // for the final led strip
+#define LED_TYPE    WS2801
 #define COLOR_ORDER GRB
-#define FPS         120       // frames per second
+#define FPS         20       // frames per second
+
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof((A)[0]))
 
 
 // Inputs //
-#define BTN_PIN     2       // input pin of the pushbutton
-#define FRIDGE      12      // pin for the door sensor for the fridge
+#define BTN_PIN     3       // input pin of the pushbutton
+#define FRIDGE      2       // pin for the door sensor for the fridge
 
 
 // 7 segment display //
-#define A   0
-#define B   1
-#define C   9
-#define D   5
-#define E   7
-#define F   8
-#define G   13
+#define A   4
+#define B   5
+#define C   6
+#define D   7
+#define E   8
+#define F   9
+#define G   10
 
 
 
@@ -74,7 +72,8 @@ sevenSegmentDisplay display(COMMON_CATHODE, A, B, C, D, E, F, G, DP);
 // patterns //
 uint8_t gCurrentPatternNumber = 0;        // Index Number of which pattern is current
 uint8_t gHue = 0;                         // index of current color
-typedef void (*SimplePatternList[])();    // List of patterns to cycle through. Each is defines as a seperate function below.
+uint8_t gPos = 0;                         // index of current position
+typedef void (*SimplePatternList[])(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos);    // List of patterns to cycle through. Each is defines as a seperate function below.
 
 
 
@@ -100,7 +99,7 @@ void setup() {
 
 
   // LED Strip //
-  FastLED.addLeds<LED_TYPE, DATA_PIN1, CLK_PIN1, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE, DATA_PIN, CLK_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
 
   // Threads //
@@ -129,7 +128,7 @@ void loop() {
 SimplePatternList gPatterns = {animation0, animation1, animation2, animation3,
                               animation4, animation5, animation6, animation7,
                               animation8, animation9};
-
+                              
 // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
 
@@ -137,6 +136,8 @@ SimplePatternList gPatterns = {animation0, animation1, animation2, animation3,
 ////////////////////////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\Thread handling\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
 ////////////////////////////////////////////////////////////////////////////////
+
+
 
 // // // // // This thread handel following tasks  // // // // //
 //                                                             //
@@ -151,15 +152,20 @@ void lightCallback(){
   // // // // // Fridge inerrupt // // // // //
   while((fridgeState = digitalRead(FRIDGE))==LOW){
     display.set('F');     // 7 segment display shows a 'F'
-    animationFridge();    // Fridge animation starts
+    animationFridge(leds, gHue, gPos);    // Fridge animation starts
   }
 
   // // // // // periodic update // // // // //
   EVERY_N_MILLISECONDS( 20 ) { gHue++; }  // slowly cycle the "base color" through the rainbow
+  if(gPos < NUM_LEDS){
+    gPos++;
+  } else{
+    gPos = 0;
+  }
 
-  gPatterns[gCurrentPatternNumber]();     // load current Pattern
+  gPatterns[gCurrentPatternNumber](leds, gHue, gPos);     // load current Pattern
   if(doSwitch == true){                   // switch to next pattern when button was pressed
-    gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE (gPatterns);
+    gCurrentPatternNumber = (gCurrentPatternNumber + 1) % (ARRAY_SIZE (gPatterns));
     doSwitch = false;
   }
 
@@ -190,96 +196,3 @@ void buttonCallback(){
   }
 }
 
-/*
-// rainbow
-void animation0(){
-  fill_rainbow( leds, NUM_LEDS, gHue, 3);
-}
-
-
-// confetti
-void animation1(){
-  // random colored speckles that blink in and fade smoothly
-  fadeToBlackBy( leds, NUM_LEDS, 10);
-  int pos = random16(NUM_LEDS);
-  leds[pos] += CHSV( gHue + random8(64), 200, 255);
-}
-
-
-// sinelon
-void animation2(){
-  // a colored dot sweeping back and forth, with fading trails
-  fadeToBlackBy( leds, NUM_LEDS, 20);
-  int pos = beatsin16(13,0,NUM_LEDS);
-  leds[pos] += CHSV( gHue, 255, 192);
-}
-
-
-// rainbowWithGlitter
-void animation3(){
-  // built-in FastLED rainbow, plus some random sparkly glitter
-  animation0();
-  addGlitter(80);
-}
-
-
-// bpm
-void animation4(){
-  // colored stripes pulsing at a defined Beats-Per-Minute (BPM)
-  uint8_t BeatsPerMinute = 62;
-  CRGBPalette16 palette = PartyColors_p;
-  uint8_t beat = beatsin8( BeatsPerMinute, 64, 255);
-  for( int i = 0; i < NUM_LEDS; i++) { //9948
-    leds[i] = ColorFromPalette(palette, gHue+(i*2), beat-gHue+(i*10));
-  }
-}
-
-
-// juggle
-void animation5(){
-  // eight colored dots, weaving in and out of sync with each other
-  fadeToBlackBy( leds, NUM_LEDS, 20);
-  byte dothue = 0;
-  for( int i = 0; i < 8; i++) {
-    leds[beatsin16(i+2,0,NUM_LEDS)] |= CHSV(dothue, 200, 255);
-    dothue += 32;
-  }
-}
-
-void animation6(){
-
-}
-
-void animation7(){
-
-}
-
-void animation8(){
-
-}
-
-void animation9(){
-
-}
-
-void animationFridge(){
-  for(int i = 0; i < NUM_LEDS/2; i++) {
-    // fade everything out
-    fadeToBlackBy(leds, NUM_LEDS, 30);
-
-    // let's set an led value
-    leds[i] = CHSV(gHue++,255,255);
-
-    // now, let's first 20 leds to the top 20 leds,
-    leds(NUM_LEDS/2,NUM_LEDS-1) = leds(NUM_LEDS/2 - 1 ,0);
-    FastLED.delay(23);
-  }
-}
-
-void addGlitter( fract8 chanceOfGlitter)
-{
-  if( random8() < chanceOfGlitter) {
-    leds[ random16(NUM_LEDS) ] += CRGB::White;
-  }
-}
-*/
