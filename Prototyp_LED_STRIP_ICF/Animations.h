@@ -1,15 +1,21 @@
 #include <Arduino.h>
 #include "FastLED.h"
 
-
+#define fridgeMiddle 100
 #define NUM_LEDS    160
+
+int fridgeHead = fridgeMiddle;
+int fridgeTail = fridgeMiddle;
+
+
+/////////////////////////////// LED ANIMATIONS /////////////////////////////////
 
 // rainbow
 void animation0(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
   fill_rainbow( leds, NUM_LEDS, gHue, 3);
 }
 
-
+// two colors are moving from the left to the right
 void animation1(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
   for(int i = 0; i <= NUM_LEDS; i++){
     leds[i] = CRGB(100, 255, 0); //BRG
@@ -86,17 +92,26 @@ void animation9(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
 
 }
 
+
+
+//////////////////////////// FRIDGE ANIMATIONS /////////////////////////////////
+
 void animationFridge(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
-  for(int i = 0; i < NUM_LEDS/2; i++) {
-    // fade everything out
-    fadeToBlackBy(leds, NUM_LEDS, 30);
-
-    // let's set an led value
-    leds[i] = CHSV(gHue++,255,255);
-
-    // now, let's first 20 leds to the top 20 leds,
-    leds(NUM_LEDS/2,NUM_LEDS-1) = leds(NUM_LEDS/2 - 1 ,0);
-    FastLED.delay(23);
+  for( i = fridgeMiddle; i <= ; i++){
+    leds[i] = CHSV(0, 255, 255);
+    int value = fridgeHead - fridgeMiddle;
+    leds[fridgeMiddle - value] = CHSV(0,255,255);
   }
+
+  if(fridgeHead < (0,75*NUM_LEDS)){
+    fridgeHead++;
+  }
+
 }
 
+void animationFridgeClose(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
+  for(int i = fridgeTail;  i <= fridgeHead; i++){
+    leds[i] = CHSV(0, 255, 255);
+    int value = fridge
+  }
+}
