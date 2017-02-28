@@ -20,9 +20,19 @@ void animation1(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
   for(int i = 0; i <= NUM_LEDS; i++){
     leds[i] = CRGB(100, 255, 0); //BRG
   }
-  for(int j = 0; j < 50; j++){
+  for(int j = 0; j < 80; j++){
     int pos = (gPos + j) % (NUM_LEDS);
     leds[pos] = CRGB(255, 0 ,0);
+  }
+
+    for(int i = fridgeMiddle; i <= fridgeHead; i++){
+    leds[i] = CRGB(0, 255, 255);
+    int value = i - fridgeMiddle;
+    leds[fridgeMiddle - value] = CRGB(0,255,255);
+  }
+
+  if(fridgeHead < (0,75*NUM_LEDS)){
+    fridgeHead++;
   }
 }
 
@@ -97,21 +107,22 @@ void animation9(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
 //////////////////////////// FRIDGE ANIMATIONS /////////////////////////////////
 
 void animationFridge(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
-  for( i = fridgeMiddle; i <= ; i++){
-    leds[i] = CHSV(0, 255, 255);
+  for(int i = fridgeMiddle; i <= fridgeHead; i++){
+    leds[i] = CRGB(0, 255, 255);
     int value = fridgeHead - fridgeMiddle;
-    leds[fridgeMiddle - value] = CHSV(0,255,255);
+    leds[fridgeMiddle - value] = CRGB(0,255,255);
   }
 
   if(fridgeHead < (0,75*NUM_LEDS)){
     fridgeHead++;
   }
 
+
 }
 
 void animationFridgeClose(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos){
   for(int i = fridgeTail;  i <= fridgeHead; i++){
     leds[i] = CHSV(0, 255, 255);
-    int value = fridge
+    int value = fridgeHead;
   }
 }

@@ -149,11 +149,7 @@ SimplePatternList gPatterns = {animation0, animation1, animation2, animation3,
 // // // // // // // // // // // // // // // // // // // // // //
 void lightCallback(){
 
-  // // // // // Fridge inerrupt // // // // //
-  while((fridgeState = digitalRead(FRIDGE))==LOW){
-    display.set('F');     // 7 segment display shows a 'F'
-    animationFridge(leds, gHue, gPos);    // Fridge animation starts
-  }
+
 
   // // // // // periodic update // // // // //
   EVERY_N_MILLISECONDS( 20 ) { gHue++; }  // slowly cycle the "base color" through the rainbow
@@ -169,8 +165,15 @@ void lightCallback(){
     doSwitch = false;
   }
 
+      // // // // // Fridge inerrupt // // // // //
+  if(digitalRead(FRIDGE)==LOW){
+    display.set('F');     // 7 segment display shows a 'F'
+    animationFridge(leds, gHue, gPos);    // Fridge animation starts
+  }
+
   FastLED.show();
   FastLED.delay(1000/FPS);
+
 }
 
 
