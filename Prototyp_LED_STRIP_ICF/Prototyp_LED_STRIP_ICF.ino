@@ -1,9 +1,8 @@
 #include <sevenSegmentDisplay.h>  // https://github.com/HackerInside0/Arduino_sevenSegmentDisplay
-#include <simtronyx_RGB_LED.h>    // http://blog.simtronyx.de/eine-rgb-led-bibliothek-fuer-den-arduino/
 #include "FastLED.h"              // http://fastled.io/
 #include <Thread.h>               // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
-#include "Animations.h"
+#include "Animations.h" 
 
 // This Software is just a prototyp
 // Goal of this programm is to create a animation
@@ -15,6 +14,9 @@
 // last update: 23.02.2017
 //
 // have fun!
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +36,7 @@
 
 // Inputs //
 #define BTN_PIN     3       // input pin of the pushbutton
-#define FRIDGE      2       // pin for the door sensor for the fridge
+#define FRIDGE      8       // pin for the door sensor for the fridge
 
 
 // 7 segment display //
@@ -58,6 +60,7 @@
 // Led Strip //
 CRGBArray<NUM_LEDS> leds;   // initiate the led Strip (leds)
 
+data d(0, NUM_LEDS, true);
 
 // inputs //
 boolean doSwitch = false;   // true, when button was pressed - turn false when switch is over
@@ -73,7 +76,7 @@ sevenSegmentDisplay display(COMMON_CATHODE, A, B, C, D, E, F, G, DP);
 uint8_t gCurrentPatternNumber = 0;        // Index Number of which pattern is current
 uint8_t gHue = 0;                         // index of current color
 uint8_t gPos = 0;                         // index of current position
-typedef void (*SimplePatternList[])(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos);    // List of patterns to cycle through. Each is defines as a seperate function below.
+typedef void (*SimplePatternList[])(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data& d);    // List of patterns to cycle through. Each is defines as a seperate function below.
 
 
 
@@ -109,6 +112,8 @@ void setup() {
   // Thread Controller //
   controll.add(ledStrip);                 // add ledStrip to controller
   controll.add(btnControll);              // add btnControll to controller
+  
+  pinMode(7, OUTPUT);
 }
 
 
@@ -159,7 +164,7 @@ void lightCallback(){
     gPos = 0;
   }
 
-  gPatterns[gCurrentPatternNumber](leds, gHue, gPos);     // load current Pattern
+  gPatterns[gCurrentPatternNumber](leds, gHue, gPos, d);     // load current Pattern
   if(doSwitch == true){                   // switch to next pattern when button was pressed
     gCurrentPatternNumber = (gCurrentPatternNumber + 1) % (ARRAY_SIZE (gPatterns));
     doSwitch = false;
@@ -168,7 +173,11 @@ void lightCallback(){
       // // // // // Fridge inerrupt // // // // //
   if(digitalRead(FRIDGE)==LOW){
     display.set('F');     // 7 segment display shows a 'F'
-    animationFridge(leds, gHue, gPos);    // Fridge animation starts
+    animationFridge(leds, gHue, gPos, d);    // Fridge animation starts
+    digitalWrite(7, HIGH);
+  }
+  else{
+    digitalWrite(7, LOW);
   }
 
   FastLED.show();
