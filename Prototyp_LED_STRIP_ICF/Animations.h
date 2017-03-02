@@ -4,7 +4,12 @@
 #define fridgeMiddle 100
 #define NUM_LEDS    160
 
-int fridgeHead = fridgeMiddle;
+#define YP_BLUE CRGB(255, 0, 0)
+#define YP_PURPLE CRGB(100, 255, 0)
+#define YELLOW CRGB(0,255,255)
+#define BLACK CRGB(0,0,0)
+
+float fridgeHead = fridgeMiddle;
 int value;
 
 struct data {
@@ -39,17 +44,17 @@ struct data {
 
 // Solid 
 void animation0(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
-  fill_gradient_RGB(leds, 0, CRGB(50,255,0), NUM_LEDS ,CRGB(255,0,0));
+  fill_gradient_RGB(leds, 0, YP_PURPLE , NUM_LEDS ,YP_BLUE);
 }
 
 // two colors are moving from the left to the right
 void animation1(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
   for (int i = 0; i <= NUM_LEDS; i++) {
-    leds[i] = CRGB(100, 255, 0); //BRG
+    leds[i] = YP_PURPLE; //BRG
   }
   for (int j = 0; j < 80; j++) {
     int pos = (gPos + j) % (NUM_LEDS);
-    leds[pos] = CRGB(255, 0 , 0);
+    leds[pos] = YP_BLUE;
   }
 
 }
@@ -59,24 +64,24 @@ void animation1(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
 void animation2(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data& d) {
   if (d.color) {
     for (int i = 0; i <= d.fillcount; i++) {
-      leds[i] = CRGB(255, 0, 0);
+      leds[i] = YP_BLUE;
     }
     for (int i = d.fillcount; i <= NUM_LEDS; i ++) {
-      leds[i] = CRGB(100, 255, 0);
+      leds[i] = YP_PURPLE;
     }
 
     for(int i=0; i<= 4; i++){
-      leds[d.pixelpos+i] = CRGB(100, 255, 0);     
+      leds[d.pixelpos+i] = YP_PURPLE;     
     }
   } else {
     for (int i = 0; i <= d.fillcount; i++) {
-      leds[i] = CRGB(100, 255, 0);
+      leds[i] = YP_PURPLE;
     }
     for (int i = d.fillcount; i <= NUM_LEDS; i ++) {
-      leds[i] = CRGB(255, 0, 0);
+      leds[i] = YP_BLUE;
     }
     for(int i=0; i<= 4; i++){
-      leds[d.pixelpos+i] = CRGB(200, 0, 0);     
+      leds[d.pixelpos+i] = YP_BLUE;     
     }
 
   }
@@ -107,33 +112,33 @@ void animation4(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
   }
   for (int j = 0; j < 50; j++) {
     int pos = (gPos + j) % (NUM_LEDS);
-    leds[pos] = CHSV(90, 255, 255);
+    leds[pos] = YP_PURPLE;
   }
 }
 
 
 void animation5(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data& d) {
   for(int i = 0 ; i<= NUM_LEDS; i++){
-    leds[i] = CRGB(0,0,0);
+    leds[i] = BLACK;
   }
 
   for(int i = d.stripT1; i <= d.stripH1; i++){
-    leds[i] = CRGB(255, 0, 0);
+    leds[i] = YP_BLUE;
   }
 
   for(int i = d.stripT2; i<= d.stripH2; i++){
-    leds[i] = CRGB(0, 5, 255);
+    leds[i] = YP_PURPLE;
   }
 
   if(d.stripH1 >= d.stripT2 && d.stripH1 <= d.stripH2){
     for(int i = d.stripT2; i <= d.stripH1; i++){
-      leds[i] = CRGB(0,255,255);
+      leds[i] = YELLOW;
     }
   }
 
   if(d.stripT1 >= d.stripT2 && d.stripT1 <= d.stripH2){
     for(int i = d.stripT1; i <= d.stripH2; i++){
-      leds[i] = CRGB(0,255,255);
+      leds[i] = YELLOW;
     }
   }
 
@@ -196,17 +201,17 @@ void animationFridge(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data 
 
   for (int i = fridgeMiddle; i <= fridgeHead; i++) {
     if(i <= NUM_LEDS){
-      leds[i] = CRGB(0, 255, 255);
+      leds[i] = YELLOW;
     }
     
     value = i - fridgeMiddle;
     if(value > 0){
-      leds[fridgeMiddle - value] = CRGB(0, 255, 255);
+      leds[fridgeMiddle - value] = YELLOW;
     }
   }
 
   if (fridgeMiddle - value > 0 ) {
-    fridgeHead++;
+    fridgeHead += 0.5;
   }
 
 }
@@ -214,7 +219,7 @@ void animationFridge(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data 
 void animationFridgeClose(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
 
   for(int i = (fridgeMiddle-value); i <= fridgeMiddle; i++){
-    leds[i] = CRGB(0, 255, 255);
+    leds[i] = YELLOW;
   }
   if(value >= 0){
     value -= 3;
@@ -222,11 +227,11 @@ void animationFridgeClose(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, 
 
   if(fridgeHead <= NUM_LEDS){
     for(int i = fridgeMiddle; i < fridgeHead; i++){
-      leds[i] = CRGB(0, 255, 255);
+      leds[i] = YELLOW;
     }
   }else{
      for(int i = fridgeMiddle; i <= NUM_LEDS; i++){
-      leds[i] = CRGB(0, 255, 255);
+      leds[i] = YELLOW;
     }
   }
   
