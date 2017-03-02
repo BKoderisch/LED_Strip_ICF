@@ -5,14 +5,15 @@
 #include "Animations.h" 
 #include <EEPROM.h>
 
-// This Software is just a prototyp
-// Goal of this programm is to create a animation
-// pattern that can be changed with a pushbutton
+// Program controls a LED strip 
+// animations can be changed with a push button
 //
 // author: Benjamin Koderisch
 //  -b.koderisch@gmail.com-
-// version: 1.3
-// last update: 23.02.2017
+// co-Author: Christopher Kossatz
+// -christopher.kossatz@icf-berlin.de-
+// version: 1.5
+// last update: 02.03.2017
 //
 // have fun!
 
@@ -94,7 +95,8 @@ Thread* btnControll = new Thread();              // Thread to controll the butto
 //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''//
 
 void setup() {
-  delay(3000);                // 3 second delay for recovery
+  display.set(8);
+  delay(1500);                // 1.5 second delay for recovery
 
   if(gCurrentPatternNumber > 9 || gCurrentPatternNumber < 0) {
     gCurrentPatternNumber = 0;

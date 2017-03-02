@@ -116,7 +116,7 @@ void animation4(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data d) {
   }
 }
 
-
+//two stripes are moving, when colliding color turns yellow
 void animation5(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data& d) {
   for(int i = 0 ; i<= NUM_LEDS; i++){
     leds[i] = BLACK;
