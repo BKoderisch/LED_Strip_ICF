@@ -1,20 +1,24 @@
 #include <sevenSegmentDisplay.h>  // https://github.com/HackerInside0/Arduino_sevenSegmentDisplay
-#include <simtronyx_RGB_LED.h>    // http://blog.simtronyx.de/eine-rgb-led-bibliothek-fuer-den-arduino/
 #include "FastLED.h"              // http://fastled.io/
 #include <Thread.h>               // https://github.com/ivanseidel/ArduinoThread
 #include <ThreadController.h>
-#include "Animations.h"
+#include "Animations.h" 
+#include <EEPROM.h>
 
-// This Software is just a prototyp
-// Goal of this programm is to create a animation
-// pattern that can be changed with a pushbutton
+// Program controls a LED strip 
+// animations can be changed with a push button
 //
 // author: Benjamin Koderisch
 //  -b.koderisch@gmail.com-
-// version: 1.3
-// last update: 23.02.2017
+// co-Author: Christopher Kossatz
+// -christopher.kossatz@icf-berlin.de-
+// version: 1.5
+// last update: 02.03.2017
 //
 // have fun!
+
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +37,8 @@
 
 
 // Inputs //
-#define BTN_PIN     3       // input pin of the pushbutton
-#define FRIDGE      2       // pin for the door sensor for the fridge
+#define BTN_PIN     2       // input pin of the pushbutton
+#define FRIDGE      3       // pin for the door sensor for the fridge
 
 
 // 7 segment display //
@@ -58,6 +62,7 @@
 // Led Strip //
 CRGBArray<NUM_LEDS> leds;   // initiate the led Strip (leds)
 
+data d(0, NUM_LEDS, true);
 
 // inputs //
 boolean doSwitch = false;   // true, when button was pressed - turn false when switch is over
@@ -66,14 +71,14 @@ int fridgeState = 0;        // 1 when fridge is closed - 0 when fridge is open
 
 
 // 7 segment display //
-sevenSegmentDisplay display(COMMON_CATHODE, A, B, C, D, E, F, G, DP);
+sevenSegmentDisplay display(COMMON_ANODE, A, B, C, D, E, F, G, DP);
 
 
 // patterns //
-uint8_t gCurrentPatternNumber = 0;        // Index Number of which pattern is current
+uint8_t gCurrentPatternNumber = EEPROM.read(0);        // Index Number of which pattern is current
 uint8_t gHue = 0;                         // index of current color
 uint8_t gPos = 0;                         // index of current position
-typedef void (*SimplePatternList[])(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos);    // List of patterns to cycle through. Each is defines as a seperate function below.
+typedef void (*SimplePatternList[])(CRGBArray<NUM_LEDS> leds, uint8_t gHue, uint8_t gPos, data& d);    // List of patterns to cycle through. Each is defines as a seperate function below.
 
 
 
@@ -90,8 +95,13 @@ Thread* btnControll = new Thread();              // Thread to controll the butto
 //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''//
 
 void setup() {
-  delay(3000);                // 3 second delay for recovery
+  display.set(8);
+  delay(1500);                // 1.5 second delay for recovery
 
+  if(gCurrentPatternNumber > 9 || gCurrentPatternNumber < 0) {
+    gCurrentPatternNumber = 0;
+    EEPROM.write(0, gCurrentPatternNumber);  
+  }
 
   // initiate inputs //
   pinMode(BTN_PIN, INPUT);    // set Button as INPUT
@@ -109,6 +119,7 @@ void setup() {
   // Thread Controller //
   controll.add(ledStrip);                 // add ledStrip to controller
   controll.add(btnControll);              // add btnControll to controller
+  
 }
 
 
@@ -126,8 +137,9 @@ void loop() {
 // // // // // // // // // fill pattern list // // // // // // // // // // // //
 
 SimplePatternList gPatterns = {animation0, animation1, animation2, animation3,
-                              animation4, animation5, animation6, animation7,
-                              animation8, animation9};
+                              animation4, animation5};
+                              /*, animation6, animation7,
+                              animation8, animation9*/
                               
 // // // // // // // // // // // // // // // // // // // // // // // // // // //
 
@@ -152,25 +164,27 @@ void lightCallback(){
 
 
   // // // // // periodic update // // // // //
-  EVERY_N_MILLISECONDS( 20 ) { gHue++; }  // slowly cycle the "base color" through the rainbow
+  gHue++;   // slowly cycle the "base color" through the rainbow
   if(gPos < NUM_LEDS){
     gPos++;
   } else{
     gPos = 0;
   }
 
-  gPatterns[gCurrentPatternNumber](leds, gHue, gPos);     // load current Pattern
+  gPatterns[gCurrentPatternNumber](leds, gHue, gPos, d);     // load current Pattern
   if(doSwitch == true){                   // switch to next pattern when button was pressed
     gCurrentPatternNumber = (gCurrentPatternNumber + 1) % (ARRAY_SIZE (gPatterns));
     doSwitch = false;
   }
-
+  EEPROM.write(0, gCurrentPatternNumber);
       // // // // // Fridge inerrupt // // // // //
   if(digitalRead(FRIDGE)==LOW){
     display.set('F');     // 7 segment display shows a 'F'
-    animationFridge(leds, gHue, gPos);    // Fridge animation starts
+    animationFridge(leds, gHue, gPos, d);    // Fridge animation starts
+  }else{
+    animationFridgeClose(leds, gHue, gPos, d);
   }
-
+  
   FastLED.show();
   FastLED.delay(1000/FPS);
 
@@ -187,7 +201,9 @@ void lightCallback(){
 // // // // // // // // // // // // // // // // // // // // // //
 
 void buttonCallback(){
-  display.set(gCurrentPatternNumber);
+  if(digitalRead(FRIDGE) == 1){
+    display.set(gCurrentPatternNumber);
+  }
   int buttonState = 0;
   if(doSwitch == false){
     buttonState = digitalRead(BTN_PIN);
